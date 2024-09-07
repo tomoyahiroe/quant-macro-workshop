@@ -121,3 +121,16 @@ in 1.21593e-05 seconds.
 >>> 0.00010895729064941406 / 1.21593e-05
 8.960819343992998
 ```
+
+numpy を使用してCPythonコンパイラで実行すると, numpy を使用しないPythonコードよりも約3倍ほど遅くなりました。
+
+```{}
+>> python src/ch2/grid_search.py
+Computed policy function =
+[np.float64(0.025), np.float64(0.075), np.float64(0.1), np.float64(0.15), np.float64(0.175), np.float64(0.22499999999999998), np.float64(0.24999999999999997), np.float64(0.27499999999999997), np.float64(0.325), np.float64(0.35)] 
+in 0.0003619194030761719 seconds.
+```
+```
+```
+
+

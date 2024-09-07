@@ -14,10 +14,19 @@ def generate_grid(start: float, end: float, interval: float):
 
 
 def f(w: float, a: float, r: float, beta: float, gamma: float) -> float:
-    if (1 - gamma) == 0:
-        return float("inf")  # ゼロ割を避けるために inf を返す
+    """
+    消費が負となる選択をした場合効用がマイナス無限大になるように設定して、
+    そのような選択肢が選ばれないようにする。
+    """
     if (w - a) < 0:
         return float("-inf")  # 無限に小さな値を返す
+    """
+    所得wと貯蓄aが等しい場合には消費が0になる。
+    このとき、gammaが1より大きいとu_youngにおいて0のマイナス乗が発生する。
+    これを避けるために、w-a==0のときにはaをわずかに小さくする。
+    """
+    if (w - a) == 0:
+        a = a - 1e-5
     try:
         # CRRA型効用関数
         u_young = ((w - a)**(1 - gamma)) / (1 - gamma)
