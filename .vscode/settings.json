@@ -1,8 +1,9 @@
 {
   "python.analysis.typeCheckingMode": "basic",
   "python.analysis.autoImportCompletions": true,
+  "editor.tabSize": 2,
   "[python]": {
-      "editor.defaultFormatter": "ms-python.black-formatter",
-      "editor.formatOnSave": true
+      "editor.defaultFormatter": "ms-python.pylint",
+      "editor.formatOnSave": true,
     }
 }
