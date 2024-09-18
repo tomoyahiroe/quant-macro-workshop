@@ -257,7 +257,14 @@ class Model(AbstractModel):
 
 
 m = Model()
-theta = m.get_g2_theta()
-eta = m.get_g1_eta()
-print("theta: ", theta, "\n")
-print("eta: ", eta, "\n")
+theta0, theta1 = m.get_g2_theta()
+eta0, eta1 = m.get_g1_eta()
+print(f"a_2 = g1(a_1) = {eta0} + {eta1} * a_1")
+print(f"a_3 = g2(a_2) = {theta0} + {theta1} * a_2")
+
+# 制作関数を二つ並べてプロット
+fig, ax = plt.subplots()
+ax.plot(m.a_grid, [m.policy_func_g1(a) for a in m.a_grid], label="Policy function g1")
+ax.plot(m.a_grid, [m.policy_func_g2(a) for a in m.a_grid], label="Policy function g2")
+ax.legend()
+plt.show()
