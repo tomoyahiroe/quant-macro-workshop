@@ -1,9 +1,7 @@
 import abc
-from email import policy
 import numpy as np
 import numpy.typing as npt
 import matplotlib.pyplot as plt
-import pandas as pd
 from scipy.optimize import leastsq
 
 
@@ -12,15 +10,15 @@ class AbstractModel(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_g2_theta(self) -> npt.NDArray: # 第2期の政策関数を決定するパラメータ theta を返す関数
         pass
-    # @abc.abstractmethod
-    # def get_g1_eta(self) -> npt.NDArray: # 第1期の政策関数を決定するパラメータ eta を返す関数
-    #     pass
+    @abc.abstractmethod
+    def get_g1_eta(self) -> npt.NDArray: # 第1期の政策関数を決定するパラメータ eta を返す関数
+        pass
     @abc.abstractmethod
     def policy_func_g2(self, a_2: float) -> float: # a_3 = g2(a_2)を実装した関数
         pass
-    # @abc.abstractmethod
-    # def policy_func_g1(self, a_1: float) -> float: # a_2 = g1(a_1)を実装した関数
-    #     pass
+    @abc.abstractmethod
+    def policy_func_g1(self, a_1: float) -> float: # a_2 = g1(a_1)を実装した関数
+        pass
 
 
 class Model(AbstractModel):
