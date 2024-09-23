@@ -266,3 +266,4 @@ ax.plot(m.a_grid, [m.policy_func_g1(a) for a in m.a_grid], label="Policy functio
 ax.plot(m.a_grid, [m.policy_func_g2(a) for a in m.a_grid], label="Policy function g2")
 ax.legend()
 plt.show()
+
