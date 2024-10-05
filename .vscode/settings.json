@@ -5,5 +5,6 @@
   "[python]": {
       "editor.defaultFormatter": "ms-python.pylint",
       "editor.formatOnSave": true,
-    }
+    },
+  "python.analysis.extraPaths": ["/Users/hiroetomokana/Library/Caches/pypoetry/virtualenvs/quant-macro-workshop-bUjjWVNQ-py3.12/lib/python3.12/site-packages"],
 }
