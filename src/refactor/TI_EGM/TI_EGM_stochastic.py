@@ -4,6 +4,8 @@ EGMを用いて TI を解くコード
 u(c) = log(c), delta = 1.0, beta = 0.96, alpha = 0.4
 Aは確率的に変動する (A = 1.01, 0.99)
 '''
+# TODO: クラス内のメソッドを static メソッドとして動作するように
+# インスタンス変数を初期値として与えるように変更する
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -62,6 +64,10 @@ class ProductionFunc():
         生産関数の出力のkに関する一階導関数
         '''
         return self.alpha * A * (k ** (self.alpha - 1))
+    
+    @staticmethod
+    def Output_prime(k: float, A:float, alpha: float)-> float:
+        return alpha * A * (k ** (alpha - 1))
 
 class WealthFunc():
     '''

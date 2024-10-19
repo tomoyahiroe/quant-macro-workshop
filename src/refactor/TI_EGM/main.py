@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # インスタンスを生成
-parameters = Model.Parameters()
+parameters = Model.Parameters(delta = 0.5)
 model = Model.Model(parameters)
 
 model.solve()
