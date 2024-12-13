@@ -1,10 +1,10 @@
 {
   "python.analysis.typeCheckingMode": "basic",
   "python.analysis.autoImportCompletions": true,
-  "editor.tabSize": 2,
+  "editor.tabSize": 4,
   "[python]": {
       "editor.defaultFormatter": "ms-python.pylint",
       "editor.formatOnSave": true,
     },
-  "python.analysis.extraPaths": ["/Users/hiroetomokana/Library/Caches/pypoetry/virtualenvs/quant-macro-workshop-bUjjWVNQ-py3.12/lib/python3.12/site-packages"],
+  "python.analysis.extraPaths": ["./venv/lib/python3.12/site-packages"],
 }
