@@ -33,22 +33,22 @@ def split_prob_to_a_grid(avalue: float, agrid: np.ndarray) -> np.ndarray:
     # この行までに return されていない場合はエラーを出す
     raise ValueError("Splitting probability failed.")
 
-def calc_weight_grid(pfgrid: np.ndarray, agrid: np.ndarray, next_a_index: int, split_prob = split_prob_to_a_grid) -> np.ndarray:
+def calc_weight_grid(pfgrid: np.ndarray, agrid: np.ndarray, split_prob = split_prob_to_a_grid) -> np.ndarray:
     """ 前期の定常分布に係る重みづけ確率 weight を計算する関数
 
     Args:
         pfgrid: 政策関数のグリッド
         agrid: 資産のグリッド
-        next_a_index (_type_): 重みづけ確率を計算したい、次期の資産の状態 a' のインデックス
     
     Returns:
         weight: 前期の定常分布に係る重みづけ確率のグリッド、shape は pfgrid と同じ
     """
-    weight = np.zeros(pfgrid.shape)
+    weight = np.empty((len(pfgrid), len(pfgrid[0]), len(agrid)))
+
     # pfgrid は 二次元配列
     for i in range(len(pfgrid)):
         for j in range(len(pfgrid[0])):
-            weight[i, j] = split_prob(pfgrid[i, j], agrid)[next_a_index]
+            weight[i, j] = split_prob(pfgrid[i, j], agrid)
     return weight
 
 def gen_pmesh(pfgrid: np.ndarray, P: np.ndarray, next_y_index: int) -> np.ndarray:
@@ -100,11 +100,11 @@ def update_sd(pfgrid: np.ndarray, agrid: np.ndarray, sd_grid: np.ndarray, P: np.
         np.ndarray: 更新された定常分布のグリッド
     """
     new_sd_grid = np.zeros(sd_grid.shape)
+    weight = calc_weight(pfgrid, agrid, split_prob)
     for i in range(len(pfgrid)):
         for j in range(len(pfgrid[0])):
             p_mesh = gen_P(pfgrid, P, j)
-            weight = calc_weight(pfgrid, agrid, i, split_prob)
-            new_sd_grid[i, j] = calc_sdpoint(p_mesh, weight, sd_grid)
+            new_sd_grid[i, j] = calc_sdpoint(p_mesh, weight[:,:,i], sd_grid)
     return new_sd_grid
 
 def solve_stationary_dist(pfgrid: np.ndarray, agrid: np.ndarray, guess_sd: np.ndarray, P: np.ndarray, 

@@ -54,42 +54,45 @@ class TestStationaryDist(unittest.TestCase):
             describe: str
             pfgrid: np.ndarray
             agrid: np.ndarray
-            next_a_index: int
             expected: np.ndarray
         testcase = [
             Case(
                 describe="all elements of pfgrid are the same as the minimum of agrid",
                 pfgrid=np.array([[12, 12], [12, 12], [12, 12]]),
                 agrid=np.array([12, 24, 36]),
-                next_a_index=0, # 0th element of agrid is 12
-                expected=np.array([[1.0, 1.0], [1.0, 1.0], [1.0, 1.0]])
+                expected=np.array([[[1.0, 0.0, 0.0], [1.0, 0.0, 0.0]], 
+                                    [[1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
+                                    [[1.0, 0.0, 0.0], [1.0, 0.0, 0.0]]])
             ),
             Case(
                 describe="all elements of pfgrid are the same as the maximum of agrid",
                 pfgrid=np.array([[36, 36], [36, 36], [36, 36]]),
                 agrid=np.array([12, 24, 36]),
-                next_a_index=2, # 2nd element of agrid is 36
-                expected=np.array([[1.0, 1.0], [1.0, 1.0], [1.0, 1.0]])
+                expected=np.array([[[0.0, 0.0, 1.0], [0.0, 0.0, 1.0]], 
+                                    [[0.0, 0.0, 1.0], [0.0, 0.0, 1.0]],
+                                    [[0.0, 0.0, 1.0], [0.0, 0.0, 1.0]]])
             ),
             Case(
                 describe="pfgrid is between the minimum and maximum of agrid",
                 pfgrid=np.array([[12, 24], [24, 36], [12, 36]]),
                 agrid=np.array([12, 24, 36]),
-                next_a_index=1, # 1st element of agrid is 24
-                expected=np.array([[0, 1], [1, 0], [0, 0]])
+                expected=np.array([[[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]], 
+                                    [[0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+                                    [[1.0, 0.0, 0.0], [0.0, 0.0, 1.0]]])
             ),
             Case(
                 describe="pfgrid is not on the grid",
                 pfgrid=np.array([[18, 18], [18, 30], [30, 30]]),
                 agrid=np.array([12, 24, 36]),
-                next_a_index=1, # 1st element of agrid is 24
-                expected=np.array([[0.5, 0.5], [0.5, 0.5], [0.5, 0.5]])
+                expected=np.array([[[0.5, 0.5, 0.0], [0.5, 0.5, 0.0]], 
+                                    [[0.5, 0.5, 0.0], [0.0, 0.5, 0.5]],
+                                    [[0.0, 0.5, 0.5], [0.0, 0.5, 0.5]]])
             )
         ]
 
         for case in testcase:
             with self.subTest(case.describe):
-                self.assertTrue(np.allclose(sd.calc_weight_grid(case.pfgrid, case.agrid, case.next_a_index, sd.split_prob_to_a_grid), case.expected))
+                self.assertTrue(np.allclose(sd.calc_weight_grid(case.pfgrid, case.agrid, sd.split_prob_to_a_grid), case.expected))
     
     def test_gen_pmesh(self):
         @dataclass
