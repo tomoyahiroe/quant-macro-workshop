@@ -1,7 +1,7 @@
 import unittest
 from dataclasses import dataclass
 import numpy as np
-import stationary_dist_numba as sd
+import stationary_dist as sd
 
 class TestStationaryDist(unittest.TestCase):
     """ Test cases for stationary_dist.py
