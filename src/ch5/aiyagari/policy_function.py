@@ -43,10 +43,8 @@ def TimeIteration(hp: st.Setting): # hpはSettingクラスからつくられる�
     def UpdatePF(h_old):
 
         h_new = np.empty_like(h_old)
-        for i_a in range(len(a_grid)):
-            a = a_grid[i_a]
-            for i_z in range(len(z_grid)):
-                z = z_grid[i_z]
+        for i_a, a in enumerate(a_grid):
+            for i_z, z in enumerate(z_grid):
                 c_star = quantecon.optimize.root_finding.brentq(FOCs, 1e-8, R * a + w*z + b, args=(a, z, i_z, h_old)).root
                 h_new[i_a, i_z] = c_star
 
@@ -100,7 +98,7 @@ def SolveProblem(hp,               # Settingクラスからつくられるイン
         error = np.max(np.abs(hfun_new-hfun_old))
         i += 1
         if verbose and i % print_skip == 0:      # 進捗をprint_skip回ごとに表示する
-            print(f"Error at iteration {i} is {error}.")
+            print(f"PF Error at iteration {i} is {error}.")
         hfun_old = hfun_new
 
     if i == max_iter:

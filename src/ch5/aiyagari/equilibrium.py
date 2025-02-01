@@ -20,32 +20,36 @@ class Result:
 def search_equilibrium(hp: Setting, DEBUG_MODE = False) -> Result:
     """ Search equilibrium
     """
-    # ローカル変数を定義
-    alpha, beta, gamma = hp.alpha, hp.beta, hp.gamma, 
-    delta, b, rho, sigma = hp.delta, hp.b, hp.rho, hp.sigma
-    r0 = hp.r0
-    lambdaR = hp.lambdaR
 
 
     converge_path = np.empty(0)
 
     diff = 1
     loop = 0
-    while abs(diff) > 1e-6:
+    while abs(diff) > 1e-5:
         loop += 1
+
+        # ローカル変数を定義
+        alpha = hp.alpha
+        delta = hp.delta
+        r0 = hp.R - 1.0
+        lambdaR = hp.lambdaR
+        na = hp.na
+        nz = hp.nz
+
         # 1. 企業の利潤最大化条件から 総資本需要 K0d, 賃金 wage を求める
         Kd = ((r0 + delta) / alpha) ** (1 / (alpha - 1))
-        wage = (1 - alpha) * (Kd ** alpha)
+        wage = (1 - alpha) * (Kd ** alpha) # 賃金の情報を更新
+        hp.w = wage
 
         # 2. 個人の最適化問題を解いて 政策関数を求める
-        hp = Setting(beta=beta, gamma = gamma, b = b, lambdaPF = 1, na = 20, nz = 3, rho = rho, sigma = sigma, R = 1 + r0, w = wage)
-        hfun_c = SolveProblem(hp,TimeIteration)
+        hfun_c = SolveProblem(hp,TimeIteration, verbose=DEBUG_MODE)
 
         # 3. 定常分布を求める
         # hfun_c から 時期のアセット aの政策関数を求める
-        hfun_aprime = np.empty((len(hp.a_grid), len(hp.z_grid)))
+        hfun_aprime = np.empty((na, nz))
         a_mesh, z_mesh = np.meshgrid(hp.a_grid, hp.z_grid, indexing='ij') # ユニバーサル関数を使用するためのグリッドを生成
-        hfun_aprime = hp.R * a_mesh + hp.w * z_mesh - hfun_c
+        hfun_aprime = (1+r0) * a_mesh + wage * z_mesh - hfun_c
 
         # 初期の定常分布を定義
         sd_grid = np.full(hfun_aprime.shape, 1/hfun_aprime.size)
@@ -62,9 +66,10 @@ def search_equilibrium(hp: Setting, DEBUG_MODE = False) -> Result:
             print("r0: ", r0, ", A0: ", A0, ", diff: ", diff)
 
         r0 = r0 -  lambdaR * diff
+        hp.R = r0 + 1.0 # r0を更新
 
 
     r0 = r0 + lambdaR * diff # 最後のループで更新されたr0を使う
-    return Result(r_star = r0, w_star = wage, K_star = Kd, 
+    return Result(r_star = r0, w_star = hp.w, K_star = Kd, 
                 hfun_c = hfun_c, hfun_a = hfun_aprime, sd = sd, 
                 converge_path = converge_path, loop = loop)
