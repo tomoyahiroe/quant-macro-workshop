@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import numpy as np
-from policy_function import SolveProblem, TimeIteration
+from policy_function_egm import SolveProblem, EGMIteration
 from stationary_dist import sd_iteration
 from setting import Setting
 
@@ -17,7 +17,7 @@ class Result:
     converge_path: np.ndarray
     loop: int
 
-def search_equilibrium(hp: Setting, lambdaR: float,DEBUG_MODE = False, tol = 1e-5) -> Result:
+def search_equilibrium(hp: Setting, lambdaR: float, DEBUG_MODE = False, tol = 1e-5) -> Result:
     """ Search equilibrium
     """
 
@@ -42,7 +42,7 @@ def search_equilibrium(hp: Setting, lambdaR: float,DEBUG_MODE = False, tol = 1e-
         hp.w = wage
 
         # 2. 個人の最適化問題を解いて 政策関数を求める
-        hfun_c = SolveProblem(hp,TimeIteration, verbose=DEBUG_MODE)
+        hfun_c = SolveProblem(hp,EGMIteration, verbose=DEBUG_MODE)
 
         # 3. 定常分布を求める
         # hfun_c から 時期のアセット aの政策関数を求める

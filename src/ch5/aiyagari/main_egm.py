@@ -1,9 +1,9 @@
 import numpy as np
 from setting import Setting
-from equilibrium import search_equilibrium
+from equilibrium_egm import search_equilibrium
 import time
 
-loops = 10
+loops = 1
 times = np.empty(loops)
 r_stars = np.empty(loops)
 k_star = np.empty(loops)
@@ -11,11 +11,10 @@ w_star = np.empty(loops)
 for i in range(loops):
     start = time.time()
     hp = Setting(beta=0.96, gamma=3, rho=0.6, sigma=0.4, 
-                alpha=0.36, delta=0.08, b=3, a_max=45,
+                alpha=0.36, delta=0.08, b=3, a_max = 45,
                 nz = 7, na = 300, R = 1.03) # brent法でエラーが出ないようにwの初期値を0以外に設定
-    result = search_equilibrium(hp = hp, lambdaR = 0.002, DEBUG_MODE= False)
+    result = search_equilibrium(hp = hp, lambdaR = 0.002, DEBUG_MODE=False)
     end = time.time()
-
     times[i] = (end - start)
     r_stars[i] = result.r_star
     k_star[i] = result.K_star

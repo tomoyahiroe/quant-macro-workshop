@@ -33,7 +33,6 @@ class Setting:
                 r0 = 0.03,                       # 利子率の初期化
                 alpha = 0.36,                    # 資本分配率
                 delta = 0.05,                    # 固定資本減耗率
-                lambdaR = 0.001,                 # 利子率の更新度
                 lambdaPF = 1):                   # 政策関数の更新度
 
         # パラメータを設定する
@@ -47,6 +46,9 @@ class Setting:
         self.rho = rho
         self.na = na
         self.nz = nz
+        self.a_min = -b
+        self.a_max = a_max
+        self.lambdaPF = lambdaPF
 
         # 外生変数の遷移確率とグリッドを設定する
         # mc = quantecon.markov.approximation.rouwenhorst(nz, rho, sigma, mu)
@@ -63,9 +65,6 @@ class Setting:
 
         # 賃金を設定
         self.w = w
-
-        # 利子率の更新度を設定する
-        self.lambdaR = lambdaR
 
         # 政策関数の更新度を設定する
         self.lambdaPF = lambdaPF

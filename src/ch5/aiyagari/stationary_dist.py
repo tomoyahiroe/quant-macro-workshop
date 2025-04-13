@@ -121,7 +121,7 @@ def update_sd(aprime_grid: np.ndarray, agrid: np.ndarray, sd_old: np.ndarray, P:
 def sd_iteration(sd0: np.ndarray, aprime_grid: np.ndarray, agrid: np.ndarray, P: np.ndarray,
                         tol: float = 1e-6, max_iter: int = 1000,
                         update_sd = update_sd) -> np.ndarray:
-    """ 定常分布を計算する関数
+    """ 定常分布の計算をまとめて担う関数,実際に外部から呼び出される
 
     Args:
         aprime_grid (np.ndarray): 政策関数のグリッド
