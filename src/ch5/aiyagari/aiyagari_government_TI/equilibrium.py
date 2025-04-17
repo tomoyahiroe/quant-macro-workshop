@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 import numpy as np
 from policy_function import SolveProblem, TimeIteration
-from stationary_dist import sd_iteration
+# from stationary_dist import sd_iteration
+from stationary_dist_fast import solve_sd
 from setting import Setting
 
 @dataclass
@@ -16,6 +17,7 @@ class Result:
     sd: np.ndarray
     converge_path: np.ndarray
     loop: int
+    hp: Setting
 
 def search_equilibrium(hp: Setting, lambdaR: float,DEBUG_MODE = False, tol = 1e-5) -> Result:
     """ Search equilibrium
@@ -30,16 +32,18 @@ def search_equilibrium(hp: Setting, lambdaR: float,DEBUG_MODE = False, tol = 1e-
         loop += 1
 
         # ローカル変数を定義
-        alpha = hp.alpha
+        alpha = hp.alpha #TODO: while文の外で良い
         delta = hp.delta
-        r0 = hp.R - 1.0
+        r = hp.r
         na = hp.na
         nz = hp.nz
+        tau = hp.tau
 
         # 1. 企業の利潤最大化条件から 総資本需要 K0d, 賃金 wage を求める
-        Kd = ((r0 + delta) / alpha) ** (1 / (alpha - 1))
+        Kd = ((r + delta) / alpha) ** (1 / (alpha - 1))
         wage = (1 - alpha) * (Kd ** alpha) # 賃金の情報を更新
         hp.w = wage
+        hp.Xi = tau * r * Kd # 資本所得税の合計
 
         # 2. 個人の最適化問題を解いて 政策関数を求める
         hfun_c = SolveProblem(hp,TimeIteration, verbose=DEBUG_MODE)
@@ -48,27 +52,34 @@ def search_equilibrium(hp: Setting, lambdaR: float,DEBUG_MODE = False, tol = 1e-
         # hfun_c から 時期のアセット aの政策関数を求める
         hfun_aprime = np.empty((na, nz))
         a_mesh, z_mesh = np.meshgrid(hp.a_grid, hp.z_grid, indexing='ij') # ユニバーサル関数を使用するためのグリッドを生成
-        hfun_aprime = (1+r0) * a_mesh + wage * z_mesh - hfun_c
+        hfun_aprime = (1+(1-tau)*r) * a_mesh + wage * z_mesh - hfun_c
 
-        # 初期の定常分布を定義
-        sd_grid = np.full(hfun_aprime.shape, 1/hfun_aprime.size)
+        # 定常分布用のグリッドを用意
+        # a_grid_sd = np.linspace(-hp.b, hp.a_grid[-1], len(hp.a_grid))
 
-        sd = sd_iteration(sd_grid, hfun_aprime, hp.a_grid, hp.Pz)
+        # 定常分布の初期値を定義する
+        # sd_grid = np.full((len(a_grid_sd), nz), 1.0 / (len(a_grid_sd) * nz)) # 各グリッドの初期値を均等に設定
+        sd_grid = np.full((na, nz), 1.0 / (na * nz)) # 各グリッドの初期値を均等に設定
+        # sd = sd_iteration(sd_grid, hfun_aprime, hp.a_grid, hp.Pz)
+        # sd = solve_sd(sd_grid, len(a_grid_sd), len(hp.z_grid), a_grid_sd, hp.Pz, hfun_aprime)
+        sd = solve_sd(sd_grid, na, nz, hp.a_grid, hp.Pz, hfun_aprime)
 
         # 4. 総資本供給と総資本需要の差分を計算
+        # Amesh, _ = np.meshgrid(a_grid_sd, hp.z_grid, indexing='ij')
         Amesh, _ = np.meshgrid(hp.a_grid, hp.z_grid, indexing='ij')
-        A0 = np.sum(Amesh * sd) # 総資本供給
-        diff = (A0 - Kd)
+        A = np.sum(Amesh * sd) # 総資本供給
+        print("A: ", A)
+        diff = (A - Kd)
         converge_path = np.append(converge_path, diff)
         if DEBUG_MODE:
             print("loop: ", loop)
-            print("r0: ", r0, ", A0: ", A0, ", diff: ", diff)
+            print("r: ", r, ", A: ", A, ", diff: ", diff)
 
-        r0 = r0 -  lambdaR * diff
-        hp.R = r0 + 1.0 # r0を更新
+        r = r -  lambdaR * diff
+        hp.r = r # r0を更新
 
 
-    r0 = r0 + lambdaR * diff # 最後のループで更新されたr0を使う
-    return Result(r_star = r0, w_star = hp.w, K_star = Kd, 
+    hp.r = r + lambdaR * diff # 最後のループで更新されたrを使う
+    return Result(r_star = hp.r, w_star = hp.w, K_star = Kd, 
                 hfun_c = hfun_c, hfun_a = hfun_aprime, sd = sd, 
-                converge_path = converge_path, loop = loop)
+                converge_path = converge_path, loop = loop, hp = hp)

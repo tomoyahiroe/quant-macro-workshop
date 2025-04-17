@@ -19,6 +19,7 @@ def maliar_grid(a_min, a_max, N, theta):
 class Setting:
 
     def __init__(self,
+                R=1.01,                          # 粗実質利子率
                 beta=0.99,                       # 割引因子
                 gamma=1,                         # 相対的リスク回避度(異時点間の代替弾力性の逆数)
                 b=0,                             # 内生的な状態変数の最小値, 借入制約
@@ -32,12 +33,10 @@ class Setting:
                 r0 = 0.03,                       # 利子率の初期化
                 alpha = 0.36,                    # 資本分配率
                 delta = 0.05,                    # 固定資本減耗率
-                lambdaPF = 1,                    # 政策関数の更新度
-                tau = 0.1,                       # 資本所得課税率
-                ):
+                lambdaPF = 1):                   # 政策関数の更新度
 
         # パラメータを設定する
-        self.r = r0
+        self.R = 1.0 + r0
         self.beta = beta
         self.b = b
         self.gamma = gamma
@@ -50,7 +49,6 @@ class Setting:
         self.a_min = -b
         self.a_max = a_max
         self.lambdaPF = lambdaPF
-        self.tau = tau
 
         # 外生変数の遷移確率とグリッドを設定する
         # mc = quantecon.markov.approximation.rouwenhorst(nz, rho, sigma, mu)
@@ -86,10 +84,6 @@ class Setting:
         hfun_old = np.empty((len(a_grid), len(z_grid)))
         for i_a, a in enumerate(a_grid):
             for i_z, z in enumerate(z_grid):
-                c_max = 0.5* ((1+r0) * a + z + b)
+                c_max = 0.5* (R * a + z + b)
                 hfun_old[i_a, i_z] = c_max
         self.hfun_old = hfun_old
-
-
-        # 資本所得税の初期化
-        self.Xi = 0.0
