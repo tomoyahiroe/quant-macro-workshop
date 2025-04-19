@@ -85,8 +85,8 @@ def TimeIteration(hp: st.Setting): # hpはSettingクラスからつくられる�
         h_new = np.empty_like(h_old)
         for i_a, a in enumerate(a_grid):
             for i_z, z in enumerate(z_grid):
-                # 第3引数は初期値
-                c_star = quantecon.optimize.root_finding.brentq(FOCs, 1e-8, (1+(1-tau)*r) * a + w*z + b, args=(a, z, i_z, h_old)).root
+                # 第3引数は初期値 f(1e-8)とf(10000)で符号が変わる
+                c_star = quantecon.optimize.root_finding.brentq(FOCs, 1e-8, 10000, args=(a, z, i_z, h_old)).root
                 h_new[i_a, i_z] = c_star
 
         return h_new
