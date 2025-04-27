@@ -12,7 +12,7 @@ for i in range(loops):
     start = time.time()
     hp = Setting(beta=0.96, gamma=3, rho=0.6, sigma=0.4, 
                 alpha=0.36, delta=0.08, b=3, a_max=45,
-                nz = 7, na = 300, r0 = 0.03, tau = 0.0) # brent法でエラーが出ないようにwの初期値を0以外に設定
+                nz = 7, na = 300, na_sd=800, r0 = 0.03, tau = 0.0) # brent法でエラーが出ないようにwの初期値を0以外に設定
     result = search_equilibrium(hp = hp, lambdaR = 0.002, DEBUG_MODE= True)
     end = time.time()
 

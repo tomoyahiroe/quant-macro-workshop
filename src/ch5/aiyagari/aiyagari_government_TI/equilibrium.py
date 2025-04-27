@@ -55,18 +55,17 @@ def search_equilibrium(hp: Setting, lambdaR: float,DEBUG_MODE = False, tol = 1e-
         hfun_aprime = (1+(1-tau)*r) * a_mesh + wage * z_mesh - hfun_c
 
         # 定常分布用のグリッドを用意
-        # a_grid_sd = np.linspace(-hp.b, hp.a_grid[-1], len(hp.a_grid))
+        a_grid_sd = np.linspace(-hp.b, hp.a_grid[-1], hp.na_sd)
 
         # 定常分布の初期値を定義する
-        # sd_grid = np.full((len(a_grid_sd), nz), 1.0 / (len(a_grid_sd) * nz)) # 各グリッドの初期値を均等に設定
-        sd_grid = np.full((na, nz), 1.0 / (na * nz)) # 各グリッドの初期値を均等に設定
+        sd_grid = np.full((len(a_grid_sd), nz), 1.0 / (len(a_grid_sd) * nz)) # 各グリッドの初期値を均等に設定
+        # sd_grid = np.full((na, nz), 1.0 / (na * nz)) # 各グリッドの初期値を均等に設定
         # sd = sd_iteration(sd_grid, hfun_aprime, hp.a_grid, hp.Pz)
-        # sd = solve_sd(sd_grid, len(a_grid_sd), len(hp.z_grid), a_grid_sd, hp.Pz, hfun_aprime)
-        sd = solve_sd(sd_grid, na, nz, hp.a_grid, hp.Pz, hfun_aprime)
+        sd = solve_sd(sd_grid, len(hp.a_grid), len(hp.z_grid), len(a_grid_sd), hp.a_grid, a_grid_sd, hp.Pz, hfun_aprime)
+        # sd = solve_sd(sd_grid, na, nz, hp.a_grid, hp.Pz, hfun_aprime)
 
         # 4. 総資本供給と総資本需要の差分を計算
-        # Amesh, _ = np.meshgrid(a_grid_sd, hp.z_grid, indexing='ij')
-        Amesh, _ = np.meshgrid(hp.a_grid, hp.z_grid, indexing='ij')
+        Amesh, _ = np.meshgrid(a_grid_sd, hp.z_grid, indexing='ij')
         A = np.sum(Amesh * sd) # 総資本供給
         print("A: ", A)
         diff = (A - Kd)

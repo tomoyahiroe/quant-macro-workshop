@@ -24,6 +24,7 @@ class Setting:
                 b=0,                             # 内生的な状態変数の最小値, 借入制約
                 a_max=16,                        # 内生的な状態変数の最大値
                 na=21,                           # 内生的な状態変数のグリッド数
+                na_sd=21,                        # 定常分布用の内生的な状態変数のグリッド数
                 mu=0,                            # 外生変数のAR(1)過程の定数項
                 rho=0.6,                         # 外生変数のAR(1)過程の慣性
                 sigma=0.4,                       # 外生変数のAR(1)過程のショック項の標準偏差
@@ -46,6 +47,7 @@ class Setting:
         self.sigma = sigma
         self.rho = rho
         self.na = na
+        self.na_sd = na_sd
         self.nz = nz
         self.a_min = -b
         self.a_max = a_max
@@ -53,12 +55,33 @@ class Setting:
         self.tau = tau
 
         # 外生変数の遷移確率とグリッドを設定する
-        # mc = quantecon.markov.approximation.rouwenhorst(nz, rho, sigma, mu)
-        mc = tauchen(nz, rho, sigma, mu, n_std = 2)
+        mc = quantecon.markov.approximation.rouwenhorst(nz, rho, sigma, mu)
+        # mc = tauchen(nz, rho, sigma, mu, n_std = 2)
         self.Pz = np.array(mc.P)
         if mc.state_values is None:
             raise ValueError("mc.state_values is None, cannot apply np.exp.")
         self.z_grid = np.exp(mc.state_values)
+
+        # 生産性の定常分布を求める
+        muZ_old = np.ones(len(self.z_grid)) / len(self.z_grid)
+
+        tol=1E-11
+        maxit=100^4
+
+        for it in range(maxit):
+            muZ_new = muZ_old @ self.Pz
+            if np.max(np.abs(muZ_new - muZ_old)) < tol: break
+            muZ_old = muZ_new
+
+        # 総労働供給を求める
+        Lbar = sum(muZ_new * self.z_grid)
+
+        # 総労働供給を1に基準化する
+        self.z_grid = self.z_grid / Lbar
+
+        Lbar = sum(muZ_new * self.z_grid)
+
+        self.Lbar = Lbar
 
         # 内生的な状態変数のグリッドを設定する
         # a_grid = np.linspace(-b, a_max, na)
