@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import numpy as np
-from policy_function import SolveProblem, TimeIteration
+from policy_function import SolveProblem, TimeIteration, interpolate_y
 # from stationary_dist import sd_iteration
 from stationary_dist_fast import solve_sd
 from setting import Setting
@@ -19,7 +19,7 @@ class Result:
     loop: int
     hp: Setting
 
-def search_equilibrium(hp: Setting, lambdaR: float,DEBUG_MODE = False, tol = 1e-5) -> Result:
+def search_equilibrium(hp: Setting, lambdaR: float,DEBUG_MODE = False, tol = 1e-6) -> Result:
     """ Search equilibrium
     """
 
@@ -40,8 +40,8 @@ def search_equilibrium(hp: Setting, lambdaR: float,DEBUG_MODE = False, tol = 1e-
         tau = hp.tau
 
         # 1. 企業の利潤最大化条件から 総資本需要 K0d, 賃金 wage を求める
-        Kd = ((r + delta) / alpha) ** (1 / (alpha - 1))
-        wage = (1 - alpha) * (Kd ** alpha) # 賃金の情報を更新
+        Kd = ((r + delta) / alpha) ** (1 / (alpha - 1)) * hp.Lbar
+        wage = (1 - alpha) * ((Kd/hp.Lbar) ** alpha) # 賃金の情報を更新
         hp.w = wage
         hp.Xi = tau * r * Kd # 資本所得税の合計
 
@@ -65,8 +65,14 @@ def search_equilibrium(hp: Setting, lambdaR: float,DEBUG_MODE = False, tol = 1e-
         # sd = solve_sd(sd_grid, na, nz, hp.a_grid, hp.Pz, hfun_aprime)
 
         # 4. 総資本供給と総資本需要の差分を計算
-        Amesh, _ = np.meshgrid(a_grid_sd, hp.z_grid, indexing='ij')
-        A = np.sum(Amesh * sd) # 総資本供給
+
+        # --- hfun_aprime を補間 ---
+        hfun_aprime_interp = np.empty((len(a_grid_sd), len(hp.z_grid)))
+        for iz in range(len(hp.z_grid)):
+            interpolate_y(hp.a_grid, a_grid_sd, hfun_aprime[:, iz], hfun_aprime_interp[:, iz])
+        # 総資本ストック供給 K_s の計算
+        A = np.sum(hfun_aprime_interp * sd)
+        
         print("A: ", A)
         diff = (A - Kd)
         converge_path = np.append(converge_path, diff)
