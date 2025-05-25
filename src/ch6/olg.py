@@ -1,8 +1,29 @@
+"""_summary_
+search_equilibrium関数は、与えられた設定と初期金利を基に、経済モデルの均衡を探索します。
+Args:
+    st (Setting): モデルの設定を格納したSettingクラスのインスタンス。
+    r0 (float): 初期金利。
+    lambdaR (float): 金利調整のためのステップサイズ。
+    DEBUG_MODE (bool, optional): デバッグモードを有効にするかどうか。デフォルトはFalse。
+    ValueError: 金利が負の値になりモデルが破綻する場合に発生。
+    Result: 均衡状態、収束パス、およびループ回数を格納したResultクラスのインスタンス。
+この関数は以下の手順で均衡を探索します：
+1. 初期金利を基に、労働需要、資本需要、賃金、生産量を計算します。
+2. 保険料率と公的年金の支給額を計算します。
+3. 個人の消費と資産の政策関数を計算します。
+4. 資産の政策関数から総資本供給を計算します。
+5. 資本需要と供給の差分が収束基準を満たすまでループを繰り返します。
+
+Raises:
+    ValueError: _description_
+
+Returns:
+    _type_: _description_
+"""
+
 from dataclasses import dataclass
-from operator import eq
 import numpy as np
 from setting import Setting
-from utils import *
 
 # 均衡に関する変数
 @dataclass
@@ -30,7 +51,7 @@ class Equilibrium:
 class Result:
     """ Result of equilibrium
     """
-    eq: Equilibrium
+    equilibrium: Equilibrium
     converge_path: np.ndarray
     loop: int
 

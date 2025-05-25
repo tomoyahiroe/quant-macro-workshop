@@ -13,9 +13,9 @@ class Setting:
     def __init__(self,
                 beta=0.98,                       # 割引因子
                 gamma=1,                         # 相対的リスク回避度(異時点間の代替弾力性の逆数)
-                b=3,                             # 内生的な状態変数の最小値, 借入制約
-                a_max=16,                        # 内生的な状態変数の最大値
-                na=21,                           # 内生的な状態変数のグリッド数
+                # b=3,                             # 内生的な状態変数の最小値, 借入制約
+                # a_max=16,                        # 内生的な状態変数の最大値
+                # na=21,                           # 内生的な状態変数のグリッド数
                 alpha = 0.4,                    # 資本分配率
                 delta = 0.08,                    # 固定資本減耗率
                 psi = 0.5,                       # 年金の平均所得代替率
@@ -28,13 +28,13 @@ class Setting:
 
         # パラメータを設定する
         self.beta = beta
-        self.b = b
+        # self.b = b
         self.gamma = gamma
         self.alpha = alpha
         self.delta = delta
-        self.na = na
-        self.a_min = -b
-        self.a_max = a_max
+        # self.na = na
+        # self.a_min = -b
+        # self.a_max = a_max
         self.psi = psi
         self.J = J
         self.jw = jw
@@ -43,9 +43,9 @@ class Setting:
         self.tol = tol
 
         # 内生的な状態変数のグリッドを設定する
-        a_grid = np.linspace(-b, a_max, na)
+        # a_grid = np.linspace(-b, a_max, na)
         # a_grid = maliar_grid(-b, a_max, na, theta = 2.0)
-        self.a_grid = a_grid
+        # self.a_grid = a_grid
 
         # CRRA型効用関数と限界効用を定義する
         gamma = self.gamma
