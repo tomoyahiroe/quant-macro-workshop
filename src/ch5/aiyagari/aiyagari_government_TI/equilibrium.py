@@ -1,17 +1,31 @@
 from dataclasses import dataclass
 import numpy as np
-from policy_function import SolveProblem, TimeIteration, interpolate_y
-# from stationary_dist import sd_iteration
-from stationary_dist_fast import solve_sd
+from policy_function import SolveProblem, TimeIteration
+from utils import interpolate_y
+from stationary_dist import solve_sd
 from setting import Setting
+
+@dataclass
+class Equilibrium:
+    """ Equilibrium of the model
+    """
+    Ld: float
+    Ls: float
+    Kd: float
+    Ks: float
+    Y: float
+    C: float
+    r_star: float
+    w_star: float
+    labor_market_error: float
+    goods_market_error: float
+    capital_market_error: float
 
 @dataclass
 class Result:
     """ Result of equilibrium
     """
-    r_star: float
-    w_star: float
-    K_star: float
+    eq: Equilibrium
     hfun_c: np.ndarray
     hfun_a: np.ndarray
     sd: np.ndarray
@@ -65,26 +79,38 @@ def search_equilibrium(hp: Setting, lambdaR: float,DEBUG_MODE = False, tol = 1e-
         # sd = solve_sd(sd_grid, na, nz, hp.a_grid, hp.Pz, hfun_aprime)
 
         # 4. 総資本供給と総資本需要の差分を計算
-
-        # --- hfun_aprime を補間 ---
-        hfun_aprime_interp = np.empty((len(a_grid_sd), len(hp.z_grid)))
-        for iz in range(len(hp.z_grid)):
-            interpolate_y(hp.a_grid, a_grid_sd, hfun_aprime[:, iz], hfun_aprime_interp[:, iz])
+        Amesh, _ = np.meshgrid(a_grid_sd, hp.z_grid, indexing='ij')
         # 総資本ストック供給 K_s の計算
-        A = np.sum(hfun_aprime_interp * sd)
+        Ks = np.sum(Amesh * sd)
+        print("Ks: ", Ks)
         
-        print("A: ", A)
-        diff = (A - Kd)
+        diff = (Ks - Kd)
         converge_path = np.append(converge_path, diff)
         if DEBUG_MODE:
             print("loop: ", loop)
-            print("r: ", r, ", A: ", A, ", diff: ", diff)
+            print("r: ", r, ", Ks: ", Ks, ", diff: ", diff)
 
         r = r -  lambdaR * diff
         hp.r = r # r0を更新
 
 
+    hfun_c_interp = np.empty((len(a_grid_sd), len(hp.z_grid)))
+    for iz in range(len(hp.z_grid)):
+        interpolate_y(hp.a_grid, a_grid_sd, hfun_c[:, iz], hfun_c_interp[:, iz])
+
+    # 各市場の均衡
+    Ld = (hp.w / ((1 - hp.alpha) * Kd ** hp.alpha)) ** (-1 / hp.alpha)
+    Labor_market_error = Ld - hp.Lbar
+    Y = Kd ** hp.alpha * Ld ** (1 - hp.alpha)
+    C = np.sum(hfun_c_interp * sd) 
+    goods_market_error = Y - C - hp.delta * Kd
+    capital_market_error = diff
+    
     hp.r = r + lambdaR * diff # 最後のループで更新されたrを使う
-    return Result(r_star = hp.r, w_star = hp.w, K_star = Kd, 
-                hfun_c = hfun_c, hfun_a = hfun_aprime, sd = sd, 
-                converge_path = converge_path, loop = loop, hp = hp)
+    return Result(eq=Equilibrium(Ld=Ld, Ls=hp.Lbar, Kd=Kd, Ks=Ks, Y=Y, C=C,
+                r_star=hp.r, w_star=hp.w,
+                labor_market_error=Labor_market_error,
+                goods_market_error=goods_market_error,
+                capital_market_error=capital_market_error),
+                hfun_c=hfun_c, hfun_a=hfun_aprime, sd=sd,
+                converge_path=converge_path, loop=loop, hp=hp)
