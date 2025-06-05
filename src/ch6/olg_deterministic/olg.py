@@ -45,6 +45,9 @@ class Equilibrium:
     tau: float # 年金保険料率
     p: float # 年金の給付額
     gc: float # 消費の成長率
+    labor_market_error: float
+    goods_market_error: float
+    capital_market_error: float
 
 # 結果を格納するクラス
 @dataclass
@@ -77,6 +80,9 @@ def search_equilibrium(st: Setting, r0: float, lambdaR: float, DEBUG_MODE = Fals
         tau = 0.0,
         p = 0.0,
         gc = 0.0, # 消費の成長率
+        labor_market_error = 0.0,
+        goods_market_error = 0.0,
+        capital_market_error = 0.0
     )
 
     converge_path = np.empty(0)
