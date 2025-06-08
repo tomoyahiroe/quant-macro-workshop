@@ -117,17 +117,6 @@ def search_equilibrium(st: Setting, Kd0: float, lambdaR: float, DEBUG_MODE = Fal
         eq.gc = (st.beta * (1 + eq.r_star))**(1/st.gamma) - 1
         print("gc: ", eq.gc)
 
-        
-        # 消費パスを計算
-        # eq.c_path[0] = eq.Y / sum([((1-((1+eq.gc)/(1+eq.r_star))**j)/(1-(1+eq.gc)/(1+eq.r_star))) for j in range(st.J)])
-        # 消費の現在価値の合計
-        # c_pv = sum(((1 + eq.gc) / (1 + eq.r_star)) ** j for j in range(st.J))
-        # c_pv = sum([((1-((1+eq.gc)/(1+eq.r_star))**j)/(1-(1+eq.gc)/(1+eq.r_star))) for j in range(st.J)]) # consumption present value
-        # 生涯所得の現在価値
-        # li_pv = sum([(st.theta[j]*eq.w_star)/(1+eq.r_star)**j for j in range(st.J)]) # lifetime income present value
-        # 初期の初期の消費
-        # eq.c_path[0] = li_pv/c_pv
-
         # 4. 生涯予算制約から消費を計算（修正版）
         # 生涯所得の現在価値
         lifetime_income = st.a1  # 初期資産
