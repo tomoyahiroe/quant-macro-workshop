@@ -103,19 +103,15 @@ def search_equilibrium(st: Setting, Kd0: float, lambdaR: float, DEBUG_MODE = Fal
         eq.Ld = eq.Ls
         eq.r_star = st.alpha * (eq.Kd / eq.Ld)**(st.alpha - 1) - st.delta
         eq.w_star = (1-st.alpha) * (eq.Kd**(st.alpha)) * (eq.Ld**(-st.alpha))
-        print("w_star: ", eq.w_star, "r_star: ", eq.r_star)
         eq.Y = eq.Kd**st.alpha * eq.Ld**(1-st.alpha)
-        print("Y: ", eq.Y, ", Ld: ", eq.Ld, ", Ls: ", eq.Ls)
         
         # 2. 保険料率 tau と公的年金の支給額 p を求める
         wbar = (eq.w_star * float(np.sum(st.mu * st.theta))) / (float(np.sum(st.mu)))
         eq.p = st.psi * wbar
         eq.tau = (st.psi*wbar*float(np.sum(st.mu[st.jr-1:]))) / (eq.w_star * (float(np.sum(st.mu[0:st.jr] * st.theta[0:st.jr]))))
-        print("tau: ", eq.tau, ", p: ", eq.p)
 
         # 3. 個人の消費の成長率を求める
         eq.gc = (st.beta * (1 + eq.r_star))**(1/st.gamma) - 1
-        print("gc: ", eq.gc)
 
         # 4. 生涯予算制約から消費を計算（修正版）
         # 生涯所得の現在価値
@@ -149,15 +145,19 @@ def search_equilibrium(st: Setting, Kd0: float, lambdaR: float, DEBUG_MODE = Fal
 
         # 4. 資産の政策関数から総資本供給 $A$を計算する
         eq.Ks = float(np.sum(st.mu * eq.a_path))
-        print("a_path: ", eq.a_path, ", c_path: ", eq.c_path)
 
         # 5. 所与の均衡金利から計算された資本と総資本供給の差分を取り、収束の基準より小さければ、均衡条件を満たしたとみなす
         diff = eq.Ks - eq.Kd
-        print("diff: ", diff)
         converge_path = np.append(converge_path, diff)
         if DEBUG_MODE:
             print("loop: ", loop)
-            print("r_star: ", eq.r_star, ", Ks: ", eq.Ks, ", diff: ", diff)
+            print("diff: ", diff)
+            # 計算した変数を全て表示
+            print(f"r_star: {eq.r_star}, w_star: {eq.w_star}, Kd: {eq.Kd}, Ks: {eq.Ks}, Ls: {eq.Ls}, Ld: {eq.Ld}, C: {eq.C}, Y: {eq.Y}, tau: {eq.tau}, p: {eq.p}, gc: {eq.gc}")
+            # 消費と資産のパスを表示
+            print("c_path: ", eq.c_path)
+            print("a_path: ", eq.a_path)
+            
         
         eq.Kd = eq.Kd + lambdaR * diff
     
