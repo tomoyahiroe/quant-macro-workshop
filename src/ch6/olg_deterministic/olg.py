@@ -30,7 +30,7 @@ from setting import Setting
 class Equilibrium:
     """ Equilibrium
     """
-    a_path: np.ndarray
+    aprime_path: np.ndarray
     c_path: np.ndarray
     Kd: float
     Ks: float
@@ -55,7 +55,7 @@ class Result:
     """ Result of equilibrium
     """
     equilibrium: Equilibrium
-    converge_path: np.ndarray
+    error_path: np.ndarray
     loop: int
 
 def search_equilibrium(st: Setting, Kd0: float, lambdaR: float, DEBUG_MODE = False) -> Result:
@@ -70,7 +70,7 @@ def search_equilibrium(st: Setting, Kd0: float, lambdaR: float, DEBUG_MODE = Fal
     # 均衡クラスを初期化
     # このクラス内の変数をイテレーションの中で更新していく
     eq = Equilibrium(
-        a_path = np.empty(st.J), 
+        aprime_path = np.empty(st.J), 
         c_path = np.empty(st.J),
         Kd = Kd0,
         Ks = 0.0,
@@ -90,7 +90,7 @@ def search_equilibrium(st: Setting, Kd0: float, lambdaR: float, DEBUG_MODE = Fal
         capital_market_error = 0.0
     )
 
-    converge_path = np.empty(0)
+    error_path = np.empty(0)
 
 
     diff = 1
@@ -108,7 +108,7 @@ def search_equilibrium(st: Setting, Kd0: float, lambdaR: float, DEBUG_MODE = Fal
         # 2. 保険料率 tau と公的年金の支給額 p を求める
         wbar = (eq.w_star * float(np.sum(st.mu * st.theta))) / (float(np.sum(st.mu)))
         eq.p = st.psi * wbar
-        eq.tau = (st.psi*wbar*float(np.sum(st.mu[st.jr-1:]))) / (eq.w_star * (float(np.sum(st.mu[0:st.jr] * st.theta[0:st.jr]))))
+        eq.tau = st.psi * (sum(st.mu[st.jr -1:]) / sum(st.mu[:st.jr -2]))
 
         # 3. 個人の消費の成長率を求める
         eq.gc = (st.beta * (1 + eq.r_star))**(1/st.gamma) - 1
@@ -135,20 +135,20 @@ def search_equilibrium(st: Setting, Kd0: float, lambdaR: float, DEBUG_MODE = Fal
         for j in range(st.J):
             eq.c_path[j] = eq.c_path[0] * (1 + eq.gc) ** j
 
-        eq.a_path[0] = st.a1
+        eq.aprime_path[0] = st.a1
         
         for i in range(st.J-1):
             if i < st.jr:
-                eq.a_path[i+1] = (1 + eq.r_star) * eq.a_path[i] + (1-eq.tau) * (st.theta[i] * eq.w_star) - eq.c_path[i]
+                eq.aprime_path[i+1] = (1 + eq.r_star) * eq.aprime_path[i] + (1-eq.tau) * (st.theta[i] * eq.w_star) - eq.c_path[i]
             else:
-                eq.a_path[i+1] = (1 + eq.r_star) * eq.a_path[i] + eq.p - eq.c_path[i]
+                eq.aprime_path[i+1] = (1 + eq.r_star) * eq.aprime_path[i] + eq.p - eq.c_path[i]
 
         # 4. 資産の政策関数から総資本供給 $A$を計算する
-        eq.Ks = float(np.sum(st.mu * eq.a_path))
+        eq.Ks = float(np.sum(st.mu * eq.aprime_path))
 
         # 5. 所与の均衡金利から計算された資本と総資本供給の差分を取り、収束の基準より小さければ、均衡条件を満たしたとみなす
         diff = eq.Ks - eq.Kd
-        converge_path = np.append(converge_path, diff)
+        error_path = np.append(error_path, diff)
         if DEBUG_MODE:
             print("loop: ", loop)
             print("diff: ", diff)
@@ -156,7 +156,7 @@ def search_equilibrium(st: Setting, Kd0: float, lambdaR: float, DEBUG_MODE = Fal
             print(f"r_star: {eq.r_star}, w_star: {eq.w_star}, Kd: {eq.Kd}, Ks: {eq.Ks}, Ls: {eq.Ls}, Ld: {eq.Ld}, C: {eq.C}, Y: {eq.Y}, tau: {eq.tau}, p: {eq.p}, gc: {eq.gc}")
             # 消費と資産のパスを表示
             print("c_path: ", eq.c_path)
-            print("a_path: ", eq.a_path)
+            print("aprime_path: ", eq.aprime_path)
             
         
         eq.Kd = eq.Kd + lambdaR * diff
@@ -166,4 +166,4 @@ def search_equilibrium(st: Setting, Kd0: float, lambdaR: float, DEBUG_MODE = Fal
     eq.K_star = eq.Ks
     eq.L_star = eq.Ls
     eq.C = float(np.sum(st.mu * eq.c_path))
-    return Result(eq, converge_path, loop)
+    return Result(eq, error_path, loop)
