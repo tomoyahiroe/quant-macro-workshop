@@ -1,4 +1,4 @@
-"""_summary_
+"""olgモデルの均衡を探索する関数
 search_equilibrium関数は、与えられた設定と初期金利を基に、経済モデルの均衡を探索します。
 Args:
     st (Setting): モデルの設定を格納したSettingクラスのインスタンス。

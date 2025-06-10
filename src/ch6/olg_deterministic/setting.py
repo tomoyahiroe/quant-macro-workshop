@@ -1,3 +1,16 @@
+"""
+Settingクラスは、オーバーラッピング・ジェネレーションズ（OLG）モデルの基本的なパラメータ設定を管理するクラスです。
+
+主な機能:
+- 割引因子、リスク回避度、資本分配率、減耗率、年金の所得代替率など、モデルの主要パラメータを初期化します。
+- モデルの期間や労働・引退開始年齢、初期資産、収束判定の閾値も設定できます。
+- 効用関数（CRRA型）と限界効用関数をパラメータに応じて定義します。
+- 人口分布（mu）と各年齢の労働生産性（theta）を全て1で初期化します。
+
+注意:
+- モデルのイテレーションを通じて変化する変数はこのクラスには含めません。
+- モデルの構造を変更する場合は、このクラスのパラメータを修正してください。
+"""
 from tabnanny import verbose
 from typing import Callable
 import quantecon
@@ -5,17 +18,33 @@ from quantecon.markov import tauchen
 import numpy as np
 from numba import njit
 
-# モデルの設定を定義するクラス
-# イテレーションを通して値が変わるような変数はここに定義しない
-# モデルを変更する場合にはここを修正
-class Setting:
 
+class Setting:
+    """
+    設定クラス（Setting）
+    このクラスは、OLG（Overlapping Generations）モデルにおける主要なパラメータを管理します。
+    割引因子、リスク回避度、資本分配率、減耗率、年金の所得代替率、モデル期間、労働・引退開始年齢、初期資産、収束判定閾値などを属性として保持します。
+    また、CRRA型効用関数および限界効用関数を定義し、人口分布および各年齢の労働生産性を初期化します。
+    Attributes:
+        beta (float): 割引因子
+        gamma (float): 相対的リスク回避度（異時点間の代替弾力性の逆数）
+        alpha (float): 資本分配率
+        delta (float): 固定資本減耗率
+        psi (float): 年金の平均所得代替率
+        J (int): モデルの期間（世代数）
+        jw (int): 勤労期の初期年齢
+        jr (int): 引退期の初期年齢
+        a1 (float): 初期資産
+        tol (float): 収束判定の閾値
+        utility (callable): CRRA型効用関数
+        mutility (callable): 限界効用関数
+        mu (np.ndarray): 各年齢の人口分布
+        theta (np.ndarray): 各年齢の労働生産性
+    """
+    
     def __init__(self,
                 beta=0.98,                       # 割引因子
                 gamma=1,                         # 相対的リスク回避度(異時点間の代替弾力性の逆数)
-                # b=3,                             # 内生的な状態変数の最小値, 借入制約
-                # a_max=16,                        # 内生的な状態変数の最大値
-                # na=21,                           # 内生的な状態変数のグリッド数
                 alpha = 0.4,                    # 資本分配率
                 delta = 0.08,                    # 固定資本減耗率
                 psi = 0.5,                       # 年金の平均所得代替率
@@ -28,24 +57,15 @@ class Setting:
 
         # パラメータを設定する
         self.beta = beta
-        # self.b = b
         self.gamma = gamma
         self.alpha = alpha
         self.delta = delta
-        # self.na = na
-        # self.a_min = -b
-        # self.a_max = a_max
         self.psi = psi
         self.J = J
         self.jw = jw
         self.jr = jr
         self.a1 = a1
         self.tol = tol
-
-        # 内生的な状態変数のグリッドを設定する
-        # a_grid = np.linspace(-b, a_max, na)
-        # a_grid = maliar_grid(-b, a_max, na, theta = 2.0)
-        # self.a_grid = a_grid
 
         # CRRA型効用関数と限界効用を定義する
         gamma = self.gamma
