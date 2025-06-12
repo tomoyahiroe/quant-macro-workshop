@@ -57,6 +57,7 @@ class Result:
     equilibrium: Equilibrium
     error_path: np.ndarray
     loop: int
+    setting: Setting
 
 def search_equilibrium(st: Setting, Kd0: float, lambdaR: float, DEBUG_MODE = False) -> Result:
     """ Search equilibrium
@@ -166,4 +167,4 @@ def search_equilibrium(st: Setting, Kd0: float, lambdaR: float, DEBUG_MODE = Fal
     eq.K_star = eq.Ks
     eq.L_star = eq.Ls
     eq.C = float(np.sum(st.mu * eq.c_path))
-    return Result(eq, error_path, loop)
+    return Result(eq, error_path, loop, st)
