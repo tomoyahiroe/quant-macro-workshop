@@ -12,10 +12,7 @@ Settingクラスは、オーバーラッピング・ジェネレーションズ�
 - モデルの構造を変更する場合は、このクラスのパラメータを修正してください。
 """
 
-from tabnanny import verbose
 from typing import Callable
-import quantecon
-from quantecon.markov import tauchen
 import numpy as np
 from numba import njit
 

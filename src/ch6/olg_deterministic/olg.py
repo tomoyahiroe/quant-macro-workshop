@@ -123,7 +123,7 @@ def search_equilibrium(
         lifetime_income = st.a1  # 初期資産
         for j in range(st.J):
             discount_factor = 1 / ((1 + eq.r_star) ** j)
-            if j < st.jr - 1:  # # 0から jr-2 までの勤労期間
+            if j < st.jr - 1:
                 income = (1 - eq.tau) * st.theta[j] * eq.w_star
             else:
                 income = eq.p
