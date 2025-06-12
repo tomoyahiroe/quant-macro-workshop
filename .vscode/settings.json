@@ -3,7 +3,7 @@
   "python.analysis.autoImportCompletions": true,
   "editor.tabSize": 4,
   "[python]": {
-      "editor.defaultFormatter": "ms-python.pylint",
+      "editor.defaultFormatter": "ms-python.black-formatter",
       "editor.formatOnSave": true,
     },
   "python.analysis.extraPaths": ["./venv/lib/python3.12/site-packages"],

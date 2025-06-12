@@ -11,6 +11,7 @@ Settingクラスは、オーバーラッピング・ジェネレーションズ�
 - モデルのイテレーションを通じて変化する変数はこのクラスには含めません。
 - モデルの構造を変更する場合は、このクラスのパラメータを修正してください。
 """
+
 from tabnanny import verbose
 from typing import Callable
 import quantecon
@@ -41,19 +42,20 @@ class Setting:
         mu (np.ndarray): 各年齢の人口分布
         theta (np.ndarray): 各年齢の労働生産性
     """
-    
-    def __init__(self,
-                beta=0.98,                       # 割引因子
-                gamma=1,                         # 相対的リスク回避度(異時点間の代替弾力性の逆数)
-                alpha = 0.4,                    # 資本分配率
-                delta = 0.08,                    # 固定資本減耗率
-                psi = 0.5,                       # 年金の平均所得代替率
-                J = 65,                          # モデルの期間
-                jw = 20,                         # 勤労期の初期 j work
-                jr = 46,                         # 引退期の初期 j retire
-                a1 = 0.0,                        # 初期資産
-                tol = 1e-5,                     # 収束判定の閾値
-                ):                   
+
+    def __init__(
+        self,
+        beta=0.98,  # 割引因子
+        gamma=1,  # 相対的リスク回避度(異時点間の代替弾力性の逆数)
+        alpha=0.4,  # 資本分配率
+        delta=0.08,  # 固定資本減耗率
+        psi=0.5,  # 年金の平均所得代替率
+        J=61,  # モデルの期間
+        jw=20,  # 勤労期の初期 j work
+        jr=46,  # 引退期の初期 j retire
+        a1=0.0,  # 初期資産
+        tol=1e-5,  # 収束判定の閾値
+    ):
 
         # パラメータを設定する
         self.beta = beta
@@ -73,8 +75,8 @@ class Setting:
             self.utility = np.log
             self.mutility: Callable[[float], float] = njit(lambda x: 1 / x)
         else:
-            self.utility = njit(lambda x: x**(1-gamma) / (1 - gamma))
-            self.mutility = njit(lambda x: x**(-gamma))
+            self.utility = njit(lambda x: x ** (1 - gamma) / (1 - gamma))
+            self.mutility = njit(lambda x: x ** (-gamma))
 
         # 人口の分布 65要素全て１
         self.mu = np.ones(J)
