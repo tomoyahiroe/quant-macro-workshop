@@ -23,7 +23,7 @@ Returns:
 
 from dataclasses import dataclass
 import numpy as np
-from setting import Setting
+from src.ch6.olg_deterministic.setting import Setting
 
 
 # 均衡に関する変数
