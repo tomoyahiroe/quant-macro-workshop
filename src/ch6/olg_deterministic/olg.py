@@ -111,7 +111,9 @@ def search_equilibrium(
         eq.Y = eq.Kd**st.alpha * eq.Ld ** (1 - st.alpha)
 
         # 2. 保険料率 tau と公的年金の支給額 p を求める
-        wbar = (eq.w_star * float(np.sum(st.mu * st.theta))) / (float(np.sum(st.mu)))
+        wbar = (
+            eq.w_star * float(np.sum(st.mu[: st.jr - 1] * st.theta[: st.jr - 1]))
+        ) / (float(np.sum(st.mu[: st.jr - 1])))
         eq.p = st.psi * wbar
         eq.tau = st.psi * (sum(st.mu[st.jr - 1 :]) / sum(st.mu[: st.jr - 1]))
 

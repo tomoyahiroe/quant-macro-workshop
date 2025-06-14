@@ -52,6 +52,7 @@ class Setting:
         jr=46,  # 引退期の初期 j retire
         a1=0.0,  # 初期資産
         tol=1e-5,  # 収束判定の閾値
+        mu=np.ones(61) / 61,
     ):
 
         # パラメータを設定する
@@ -65,6 +66,7 @@ class Setting:
         self.jr = jr
         self.a1 = a1
         self.tol = tol
+        self.mu = mu
 
         # CRRA型効用関数と限界効用を定義する
         gamma = self.gamma
@@ -75,8 +77,6 @@ class Setting:
             self.utility = njit(lambda x: x ** (1 - gamma) / (1 - gamma))
             self.mutility = njit(lambda x: x ** (-gamma))
 
-        # 人口の分布 65要素全て１
-        self.mu = np.ones(J)
-
         # 各年齢の労働生産性 65要素全て1
-        self.theta = np.ones(J)
+        self.theta = np.zeros(J)
+        self.theta[: jr - 1] = 1.0  # 勤労期は労働生産性1、退職すると0
